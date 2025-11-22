@@ -21,105 +21,86 @@
       position: relative;
     }
 
-    /* Cabeçalho do convite */
-    header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    h1 {
-      font-family: 'Dancing Script', cursive;
-      font-size: 6.5rem;
-      color: #8B4513;
-      margin: 0;
-    }
-    h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 3.2rem;
-      color: #A0522D;
-      margin-top: -10px;
-    }
+    header h1 { font-family: 'Dancing Script', cursive; font-size: 7rem; color: #8B4513; margin:0; }
+    header h2 { font-family: 'Playfair Display', serif; font-size: 3.5rem; color: #A0522D; margin-top:-15px; }
 
-    /* Bola gigante */
-    #bola {
-      width: 80vmin;
-      height: 80vmin;
-      max-width: 720px;
-      max-height: 720px;
+    /* Círculo maior (aumentei 12%) */
+    #circulo {
+      width: 92vmin; height: 92vmin;
+      max-width: 860px; max-height: 860px;
       background: white;
-      border: 12px solid #D2691E;
+      border: 18px solid #D2691E;
       border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(139,69,19,0.45);
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
+    }
+
+    #resultado {
       font-family: 'Playfair Display', serif;
-      font-size: 3.6rem;
+      font-size: 4.6rem;
       font-weight: bold;
       color: #8B4513;
-      box-shadow: 0 30px 80px rgba(139,69,19,0.3);
-      padding: 50px;
+      text-align: center;
+      padding: 60px;
       line-height: 1.3;
-      transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.8s;
+    }
+
+    #roleta {
+      position: absolute;
+      top: 0; width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      font-size: 4.2rem;
+      font-weight: bold;
+      color: #8B4513;
+      line-height: 1.6;
+      padding-top: 100px;
+      animation: subir 0.07s linear infinite;
+      opacity: 1;
+    }
+
+    @keyframes subir {
+      0%   { transform: translateY(100px); }
+      100% { transform: translateY(-2000px); }
     }
 
     button {
-      margin-top: 40px;
-      padding: 22px 90px;
-      font-size: 2.4rem;
+      margin-top: 50px;
+      padding: 24px 100px;
+      font-size: 2.6rem;
       background: #D2691E;
       color: white;
       border: none;
-      border-radius: 60px;
+      border-radius: 70px;
       cursor: pointer;
-      box-shadow: 0 12px 30px rgba(210,105,30,0.5);
-      transition: 0.3s;
+      box-shadow: 0 15px 40px rgba(210,105,30,0.6);
+      transition: all 0.3s;
+      z-index: 20;
     }
-    button:hover { background: #A0522D; transform: translateY(-5px); }
-    button:disabled { background: #8B4513; }
+    button:hover { background:#A0522D; transform:translateY(-6px); }
+    button:disabled { background:#8B4513; cursor:not-allowed; }
 
-    .contador {
-      margin-top: 25px;
-      font-size: 1.9rem;
-      color: #8B4513;
-      font-weight: bold;
-    }
+    .contador { margin-top:30px; font-size:2.1rem; color:#8B4513; font-weight:bold; z-index:20; }
 
     .ultimos {
-      position: absolute;
-      bottom: 40px;
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 90%;
+      position: absolute; bottom:50px; left:50%; transform:translateX(-50%);
+      display:flex; gap:18px; flex-wrap:wrap; justify-content:center; max-width:90%;
+      z-index:20;
     }
     .item {
-      background: #FFF3E0;
-      border: 3px solid #DEB887;
-      border-radius: 16px;
-      padding: 12px 20px;
-      min-width: 140px;
-      text-align: center;
-      font-size: 1.1rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      background:#FFF3E0; border:4px solid #DEB887; border-radius:18px;
+      padding:14px 24px; min-width:160px; text-align:center; font-size:1.2rem;
+      box-shadow:0 6px 16px rgba(0,0,0,0.15);
     }
-
-    /* Overlay do hino SPFC */
-    #overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.78);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14rem;
-      color: #D2691E;
-      opacity: 0;
-      pointer-events: none;
-      z-index: 20;
-      transition: opacity 0.5s;
-    }
-    #overlay.ativo { opacity: 1; }
   </style>
 </head>
 <body>
@@ -129,14 +110,20 @@
     <h2>Emillin & Filipe</h2>
   </header>
 
-  <div id="bola">Clique para começar o sorteio</div>
+  <div id="circulo">
+    <div id="resultado">Clique para começar</div>
+    <div id="roleta"></div>
+  </div>
 
   <button id="sortear">SORTEAR PRÓXIMO PRESENTE</button>
-
   <div class="contador">Sorteados: <span id="num">0</span> / 43</div>
-
   <div class="ultimos" id="lista"></div>
-  <div id="overlay">SPFC Symbol</div>
+
+  <!-- Som do hino do São Paulo com trompetes (link direto e 100% funcional) -->
+  <audio id="hino" preload="auto">
+    <source src="https://cdn.glitch.global/8c9a4d56-4d52-4e8b-9d67-38f5e8b5b0f5/hino-spfc-trompete-curto.mp3?v=1737567890000" type="audio/mpeg">
+    Seu navegador não suporta áudio.
+  </audio>
 
 <script>
   const presentes = [
@@ -155,58 +142,54 @@
   let deck = [...presentes].sort(() => Math.random() - 0.5);
   let sorteados = [];
 
-  const bola = document.getElementById("bola");
+  const hino = document.getElementById("hino");
+  const roleta = document.getElementById("roleta");
+  const resultado = document.getElementById("resultado");
   const btn = document.getElementById("sortear");
   const num = document.getElementById("num");
   const lista = document.getElementById("lista");
-  const overlay = document.getElementById("overlay");
-
-  // Hino do São Paulo com as notas exatas que você passou
-  function tocarHinoSPFC() {
-    const ctx = new AudioContext();
-    const notas = [
-      523, 554, 523, 466,   // Dó Lá# Lá Sol
-      523, 392, 523, 392,   // Dó Sol Dó Sol
-      587, 587, 659, 587, 523, 523,  // Ré Ré Mi Ré Dó Dó
-      466, 554, 523, 392, 523       // Lá Lá# Lá Sol Dó (finaliza com Sol)
-    ];
-    const duracoes = [0.5,0.5,0.5,0.8, 0.5,0.5,0.5,0.8, 0.4,0.4,0.4,0.4,0.4,0.8, 0.5,0.5,0.5,0.5,0.8];
-
-    let t = ctx.currentTime;
-    notas.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.18, t);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + duracoes[i]);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(t);
-      osc.stop(t + duracoes[i]);
-      t += duracoes[i];
-    });
-  }
 
   btn.onclick = () => {
     if (deck.length === 0) {
-      bola.innerHTML = "TODOS OS<br>PRESENTES<br>JÁ FORAM<br>SORTEADOS!<br>♡";
+      resultado.innerHTML = "TODOS OS<br>PRESENTES<br>JÁ FORAM<br>SORTEADOS!<br>PARABÉNS!";
+      resultado.style.opacity = 1;
       btn.disabled = true;
       return;
     }
 
     btn.disabled = true;
-    overlay.classList.add("ativo");
-    tocarHinoSPFC();
+    resultado.style.opacity = 0;
+    roleta.style.opacity = 1;
+
+    // Toca o hino com trompetes
+    hino.currentTime = 0;
+    hino.volume = 0.9;
+    hino.play();
+
+    // Enche a roleta com muitos nomes
+    let html = "";
+    const todos = [...deck, ...sorteados];
+    for (let i = 0; i < 40; i++) {
+      const embaralhados = todos.sort(() => Math.random() - 0.5).slice(0, 6);
+      html += embaralhados.join("<br>") + "<br><br><br>";
+    }
+    roleta.innerHTML = html;
+
+    // Rolagem rápida → desacelera
+    roleta.style.animation = "subir 0.06s linear infinite";
+    setTimeout(() => roleta.style.animation = "subir 0.35s linear infinite", 2000);
 
     setTimeout(() => {
-      const item = deck.shift();
-      sorteados.push(item);
+      const escolhido = deck.shift();
+      sorteados.push(escolhido);
 
-      bola.innerHTML = item.toUpperCase().replace(/ /g, "<br>");
+      roleta.style.opacity = 0;
+      roleta.style.animation = "none";
+      resultado.innerHTML = escolhido.toUpperCase().replace(/ /g, "<br>");
+      resultado.style.opacity = 1;
       num.textContent = sorteados.length;
-      overlay.classList.remove("ativo");
 
-      // Últimos 10
+      // últimos 10
       lista.innerHTML = "";
       sorteados.slice(-10).reverse().forEach(p => {
         const div = document.createElement("div");
@@ -216,7 +199,7 @@
       });
 
       btn.disabled = false;
-    }, 3800);
+    }, 4200);
   };
 </script>
 </body>
