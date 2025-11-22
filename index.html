@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chá de Panela • Emillin & Filipe</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@700&family=Roboto:wght@300;400&display=swap');
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #FFF8E8 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" opacity="0.08"><path fill="%23C19A6B" d="M100,20 Q150,70 130,120 Q100,170 70,120 Q50,70 100,20Z"/></svg>') repeat;
+      font-family: 'Roboto', sans-serif;
+      color: #5D4037;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 10px;
+      transition: filter 0.5s;
+    }
+    .escurecer { filter: brightness(0.5); }
+
+    header h1 { font-family: 'Dancing Script', cursive; font-size: 5.5rem; color: #8B4513; }
+    header h2 { font-family: 'Playfair Display', serif; font-size: 3.2rem; color: #A0522D; }
+    .versiculo { font-style: italic; font-size: 1.4rem; color: #8B4513; margin: 15px 0; }
+    .data { font-weight: bold; font-size: 2rem; color: #D2691E; }
+
+    #bola-atual {
+      width: 90vw; max-width: 700px;
+      background: white;
+      border: 12px solid #D2691E;
+      border-radius: 50%;
+      aspect-ratio: 1/1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      font-weight: bold;
+      color: #8B4513;
+      box-shadow: 0 20px 40px rgba(139,69,19,0.4);
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.3;
+      transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    button {
+      background: #D2691E; color: white; border: none;
+      padding: 20px 70px; font-size: 2.2rem; border-radius: 50px;
+      cursor: pointer; box-shadow: 0 10px 30px rgba(210,105,30,0.6);
+      transition: 0.3s; margin: 10px;
+    }
+    button:hover { background: #A0522D; transform: translateY(-4px); }
+    button:active { transform: scale(0.95); }
+
+    .contador { font-size: 1.9rem; color: #8B4513; margin: 20px 0; font-weight: bold; }
+
+    .ultimos {
+      display: flex; flex-wrap: wrap; gap: 14px;
+      justify-content: center; max-width: 90%; margin-top: 30px;
+    }
+    .ultimo-item {
+      background: #FFF3E0; border: 3px solid #DEB887;
+      border-radius: 15px; padding: 14px 20px; min-width: 150px;
+      text-align: center; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Tambor girando */
+    .tambor {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 200px; height: 200px; background: rgba(139,69,19,0.9);
+      border-radius: 50%; color: white; font-size: 6rem;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; opacity: 0; pointer-events: none;
+      animation: girar 2.8s linear;
+    }
+    @keyframes girar {
+      0%   { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(0.8); }
+      80%  { opacity: 1; transform: translate(-50%, -50%) rotate(1080deg) scale(1.1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotate(1080deg) scale(1); }
+    }
+
+    footer { margin-top: 50px; font-size: 1.2rem; color: #8B4513; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Chá de Panela</h1>
+    <h2>Emillin & Filipe</h2>
+    <div class="versiculo">“Para que saibam que está é a Tua mão, e que Tu Senhor, o fizeste”<br>Salmo 109:27</div>
+    <div class="data">Sábado • 22 de Novembro • 15h</div>
+  </header>
+
+  <div id="bola-atual">Clique no botão para começar o sorteio</div>
+
+  <button id="sortear">SORTEAR PRÓXIMO PRESENTE</button>
+
+  <div class="contador">Sorteados: <span id="num">0</span> / 43</div>
+
+  <div class="ultimos" id="lista-ultimos"></div>
+
+  <div class="tambor" id="tambor">↺</div>
+
+  <footer>
+    Av. Brás de Abreu, 14 - Jardim Miriam • Confirme sua presença ♡
+  </footer>
+
+  <script>
+    const presentes = [
+      "Abridor de garrafas e latas","Açucareiro","Afiador de facas","Assadeiras antiaderentes",
+      "Bacia Plástica","Batedor de ovos","Boleira","Bowls","Cabides","Copos de medidas",
+      "Copos para água","Cortador de pizza","Cuscuzeira","Descanso de panelas",
+      "Escorredor de macarrão","Escorredor de pratos","Espátula","Espremedor de frutas",
+      "Espremedor de limão","Faqueiro","Formas de pudim","Fruteira","Galheteiro",
+      "Garfinhos para aperitivos","Garrafa de café","Jarra de Suco","Jogo americano",
+      "Jogos de xícaras e pires","Kit de colheres","Liquidificador","Leiteira",
+      "Panos de prato","Pestiqueira","Pirex","Porta bucha e detergente","Porta copo",
+      "Porta guardanapo","Porta hermético","Potes de plásticos","Pratos fundos",
+      "Rodo de pia","Rolo de abrir massa","Saladeira","Tábua plástica"
+    ];
+
+    let deck = [...presentes].sort(() => Math.random() - 0.5);
+    let sorteados = [];
+
+    const bola = document.getElementById("bola-atual");
+    const btn = document.getElementById("sortear");
+    const contador = document.getElementById("num");
+    const lista = document.getElementById("lista-ultimos");
+    const tambor = document.getElementById("tambor");
+
+    // Sons (usando Web Audio API – funciona sem arquivo externo)
+    function tocarRoleta() {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(80, audioCtx.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 2.5);
+      oscillator.connect(audioCtx.destination);
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 2.7);
+    }
+    function tocarRevelar() {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.2);
+      osc.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.5);
+    }
+
+    btn.onclick = () => {
+      if (deck.length === 0) {
+        bola.innerHTML = "TODOS OS<br>PRESENTES<br>JÁ FORAM<br>SORTEADOS!<br>PARABÉNS!";
+        btn.disabled = true;
+        btn.style.background = "#8B4513";
+        return;
+      }
+
+      // Inicia a tensão
+      btn.disabled = true;
+      document.body.classList.add("escurecer");
+      tambor.style.opacity = 1;
+      tocarRoleta();
+
+      // Animação da bola crescendo e piscando
+      bola.style.transform = "scale(1.15)";
+      bola.style.borderColor = "#A0522D";
+      bola.innerHTML = "↺";
+
+      setTimeout(() => {
+        const item = deck.shift();
+        sorteados.push(item);
+
+        // Revelação triunfal
+        document.body.classList.remove("escurecer");
+        bola.style.transform = "scale(1)";
+        bola.style.borderColor = "#D2691E";
+        bola.innerHTML = item.toUpperCase().replace(/ /g, "<br>");
+        contador.textContent = sorteados.length;
+        tocarRevelar();
+
+        // Atualiza últimos 8
+        lista.innerHTML = "";
+        sorteados.slice(-8).reverse().forEach(p => {
+          const div = document.createElement("div");
+          div.className = "ultimo-item";
+          div.textContent = p;
+          lista.appendChild(div);
+        });
+
+        tambor.style.opacity = 0;
+        btn.disabled = false;
+      }, 2800);
+    };
+  </script>
+</body>
+</html>
